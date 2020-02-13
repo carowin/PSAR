@@ -32,6 +32,11 @@ BUT:
 		Se faire ajouter par Pierre dans le slice	
 		Se connecter à different poste via ssh
 	
+	-Faire des recherches par rapport au hop(ou demander à channez)
+	-Lire vite fait l'article de pierre sens et lucianna
+	-Revoir les sockets en c
+	-Checker PlanetLab et regarder comment ca marche
+	-On essaye de faire un petit programme genre teste sur 2 machines qui s'envoient des heartbeats l'un à l'autre et on recupere leurs traces
 	
 	 
 	 
