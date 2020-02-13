@@ -1,0 +1,38 @@
+--------------------------------PREMIERE PARTIE DU PROJET--------------------------------
+
+BUT: 
+	Récupérer les traces de chacun des sites dans le réseau.
+	On aura 1 fichier par site.
+	On stocke les informations de l'ensemble des sites dans un fichier config (ID+NOM+LOCATION), que l'on implantera dans chacun des sites. (on fait ca pour que chaque site ait connaissance des differents sites ce qui lui permettra d'envoyer des messages)
+	
+	Chaques sites envoient des heartbeats à l'ensemble des sites se trouvant dans le fichier config. Et stocke
+
+	Dans le message envoyé contiendra: le num site, le num de seq, timestamp send 
+	Dans le fichier log (traces obtenues qui son) on aura: le message envoyé + le timestamp received+hop
+	
+	Le nombre de hop=> pas obligatoire car on ne l'exploite(mais il faut checker comment recuperer le nombre de saut qu'il a fait)
+	
+	1 site = 1 Machine       	
+
+	---------------------------PROGRAMMATION----------------------
+			  
+
+	On doit envoyer des heartbeat toute les 100ms
+	Pour tout ce qui est envoie message et reception on doit utiliser des sockets
+	Réfléchir sur l'ajout de thread ?
+		=> Peut etre permettre de faire des envoies de heartbeat parallele 
+		   genre faire 1 thread par site peut être
+	Utiliser des sockets UDP
+	
+	Peut être faire un script pour generer les ssh       
+
+	------------------------À FAIRE--------------------------------
+
+	-Créer un compte PlanetLab et faire qq teste pour se familiariser
+		Se faire ajouter par Pierre dans le slice	
+		Se connecter à different poste via ssh
+	
+	
+	 
+	 
+   
