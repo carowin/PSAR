@@ -37,7 +37,10 @@ BUT:
 	-Revoir les sockets en c
 	-Checker PlanetLab et regarder comment ca marche
 	-On essaye de faire un petit programme genre teste sur 2 machines qui s'envoient des heartbeats l'un à l'autre et on recupere leurs traces
-	
+
+
+
+
 	 
 	 
    
