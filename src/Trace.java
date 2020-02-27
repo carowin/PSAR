@@ -1,45 +1,65 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class Trace {
 	
 	
-	public void send() {
-		
-	}
-	
-	public void receive() {
-		
-	}
-	
 	public static void main(String[]args) {
-		/*
-		 * INITIALISATION INFOS DU SITE
-		 */
-		int numSeq = 0; // à incrémenter à chaque envoi
-		int numSite = 0; // à initialiser ! Reflechir comment recuperer le num
-		boolean end = false; //signale la fin du prog
-		String filename = "fichierLog"+ Integer.toString(numSite)+".txt";
+		
+		//-----VARIABLES-----
+		HashMap<Integer, String> config; //HashMap<ID site, NOM site>
+		BufferedReader in; //Permet la lecture d'un fichier
+		ArrayList<Client> listeClient; //Stocke l'ensemble des clients
+		ArrayList<Serveur> listeServeur; //Stocke l'ensemble des serveurs
+		
+		//-----RÉCUPÉRATION INFOS SITES-----
+		config = new HashMap<Integer, String>();
 		try {
-			FileOutputStream fic=new FileOutputStream(filename);
+			in = new BufferedReader(new FileReader("ficConfig.txt"));
+			String site;
+			while ((site=in.readLine()) != null){
+				String[] infos = site.split(" ");
+				config.put(Integer.parseInt(infos[0]), infos[1]);
+				System.out.println(infos[0] + " " + infos[1]);
+			}//map configuré		
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-		}   
-		/*
-		 * FIN INITIALISATION
-		 */
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
 		
-
-		//-------GESTION DU TEMPS-------
-		int timeMinute = 2; //temps pendant lequel on execute le programme
-		Chrono chrono = new Chrono();
-		chrono.start();
+		//-------INSTANCIATION CLIENT/SERVEUR
+		listeClient = new ArrayList<Client>();
+		listeServeur = new ArrayList<Serveur>();
 		
-		while(chrono.getDureeSec() < timeMinute * 60) {
-			
+		for(Map.Entry mapentry : config.entrySet()) {
+			Client client = new Client((Integer)mapentry.getKey(),(String)mapentry.getValue());
+			Serveur serveur = new Serveur((Integer)mapentry.getKey(),(String)mapentry.getValue());
+			listeClient.add(client);
+			listeServeur.add(serveur);
 		}
 		
-		chrono.stop();
+		System.out.println("----------- DÉBUT DES 2 MINUTES -----------");
+		long tempsLimite = System.currentTimeMillis()+TimeUnit.SECONDS.toMillis(4);
+		//long tempsLimite = System.currentTimeMillis()+TimeUnit.MINUTES.toMillis(2);
+		while( System.currentTimeMillis()< tempsLimite) {
+			System.out.println("aaa");
+			for(int i=0; i<config.size(); i++) {
+				listeClient.get(i).send();
+				listeServeur.get(i).receive();
+			}
+		}
+		
+		System.out.println("----------- FIN DES 2 MINUTES -----------");
 	}
 }
