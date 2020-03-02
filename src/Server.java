@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Timestamp;
@@ -13,6 +14,7 @@ import java.sql.Timestamp;
  * The data will be store in a file, which name will be "file+site id".
  * Once the data collected, the server must add to the message the actual 
  * timestamp and the number of hop that it took to get to this site.
+ * In this case, we assume that every Server port number is 8080.
  */
 public class Server {
 	private Integer id;
@@ -21,7 +23,7 @@ public class Server {
 	private File file;
 	private DataOutputStream outputFile;
 	private ServerSocket sSocket;
-	
+	private  DatagramSocket dSocket;
 	
 	public Server(Integer id, String site) {
 		this.id = id;
@@ -31,6 +33,7 @@ public class Server {
 			file.createNewFile();
 			outputFile = new DataOutputStream(new FileOutputStream(file));
 			sSocket = new ServerSocket(port);// à revoir 
+			dSocket = new DatagramSocket(port);//àrevoir
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

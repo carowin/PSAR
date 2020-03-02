@@ -1,14 +1,10 @@
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -19,9 +15,9 @@ public class Trace {
 		
 		//-----VARIABLES-----
 		HashMap<Integer, String> config; //HashMap<ID site, NOM site>
-		BufferedReader in; //Permet la lecture d'un fichier
-		ArrayList<Client> clientList; //Stocke l'ensemble des clients
-		ArrayList<Server> serverList; //Stocke l'ensemble des serveurs
+		BufferedReader in; //file reader
+		ArrayList<Client> clientList; 
+		ArrayList<Server> serverList;
 		
 		//-----SITES INFOS-----
 		config = new HashMap<Integer, String>();
@@ -40,6 +36,7 @@ public class Trace {
 		}	
 		
 		//-------INSTANTIATION CLIENT/SERVER-------
+		 
 		clientList = new ArrayList<Client>();
 		serverList = new ArrayList<Server>();
 		
