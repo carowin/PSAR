@@ -13,12 +13,12 @@ import java.sql.Timestamp;
  * The data will be store in a file, which name will be "file+site id".
  * Once the data collected, the server must add to the message the actual 
  * timestamp and the number of hop that it took to get to this site.
- * In this case, we assume that every Server port number is 8080.
+ * In this case, we assume that every Server port number is 35207.
  */
 public class Server {
 	private Integer id;
 	private String site;//pas besoin peut etre
-	private int port = 8080;
+	private int port = 35207;
 	private File file;
 	private DataOutputStream outputFile;
 	private ServerSocket sSocket;
@@ -28,12 +28,12 @@ public class Server {
 	public Server(Integer id, String site) {
 		this.id = id;
 		this.site = site;
-		file = new File("file"+id);
+		file = new File("file"+id+".txt");
 		this.serverRunning = false;
 		try {
 			file.createNewFile();
 			outputFile = new DataOutputStream(new FileOutputStream(file));
-
+			dSocket = new DatagramSocket();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -52,12 +52,12 @@ public class Server {
 	}
 	
 	public void receive() {
-		this.serverRunning = true;
-		System.out.println(" >> ID="+id+" PORT:"+port);
-		System.out.println("i want to receive a massage");
 		//in a thread because of infinite loop
+		serverRunning = true;
 		Thread thread = new Thread(new Runnable(){
 			public void run() {
+				System.out.println(" >> ID="+id+" PORT:"+port);
+				System.out.println("i want to receive a message");
 				while(serverRunning) {
 					byte msg[] = new byte[50];
 					DatagramPacket packet = new DatagramPacket(msg, 50);
@@ -66,6 +66,7 @@ public class Server {
 						dSocket.receive(packet);
 						String fileLine = new String(msg);
 						fileLine += " " + timestamp;
+						System.out.println(fileLine);
 						outputFile.writeUTF(fileLine);
 					} catch (IOException e) {
 						e.printStackTrace();

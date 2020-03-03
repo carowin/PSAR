@@ -5,18 +5,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-/**
- * Each site is both a client and a server.
- * This class allows each site to send a heartbeat to every other sites that is in the 
- * configfile. The heartbeat is a message which contains: site id + seqnum + timestamp.
- * The hearbeat is sent every 100ms.
- */
-public class Client {
+public class Client implements Runnable {
+	
 	private Integer id;
 	private String site;
 	private int numSeq;
@@ -30,6 +25,7 @@ public class Client {
 		this.numSeq = 0;
 		sites = new HashMap<Integer, String>();
 		try {
+			dSocket = new DatagramSocket();
 			BufferedReader in = new BufferedReader(new FileReader("configFile.txt"));
 			String node;
 			while ((node=in.readLine()) != null){
@@ -49,21 +45,32 @@ public class Client {
 		return id;
 	}
 	
-	public void send() {
-		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		for(Map.Entry mapentry : sites.entrySet()) {
-			String msg = mapentry.getKey().toString() + " " +timestamp.toString() + " " + numSeq;
-			byte[] line = msg.getBytes();
-			InetAddress localhost;
+	public void run() {
+		System.out.println("----------- START >> 2 MINUTES -----------");
+		long timeLimit = System.currentTimeMillis()+TimeUnit.SECONDS.toMillis(4);
+		while(System.currentTimeMillis()< timeLimit) {
 			try {
-				localhost = InetAddress.getByName(mapentry.getValue().toString());
-				DatagramPacket out = new DatagramPacket(line, 0, line.length, localhost, 8080);
-				numSeq++;
-				dSocket.send(out);
-			} catch (IOException e) {
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				for(Map.Entry mapentry : sites.entrySet()) {
+					String msg = mapentry.getKey().toString() + " " +timestamp.toString() + " " + numSeq;
+					byte[] line = msg.getBytes();
+					System.out.println(msg);
+					InetAddress localhost;
+					try {
+						localhost = InetAddress.getByName(mapentry.getValue().toString());
+						DatagramPacket out = new DatagramPacket(line, 0, line.length, localhost, 8080);
+						dSocket.send(out);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				numSeq ++;
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("----------- END >> 2 MINUTES -----------");
 	}
 
 }

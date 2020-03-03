@@ -39,6 +39,10 @@ BUT:
 	-On essaye de faire un petit programme genre teste sur 2 machines qui s'envoient des heartbeats l'un à l'autre et on recupere leurs traces
 
 
+	-Faire un pré rapport (environ 4 pages) résumé sujet comment réaliser, choix de l'implémentation rappel du sujet pour le 9 mars
+	https://www.planet-lab.eu/
+
+
 
 
 	 
