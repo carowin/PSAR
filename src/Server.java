@@ -1,11 +1,10 @@
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.sql.Timestamp;
 
 /**
@@ -19,21 +18,22 @@ import java.sql.Timestamp;
 public class Server {
 	private Integer id;
 	private String site;//pas besoin peut etre
-	private int port;
+	private int port = 8080;
 	private File file;
 	private DataOutputStream outputFile;
 	private ServerSocket sSocket;
-	private  DatagramSocket dSocket;
+	private DatagramSocket dSocket;
+	private Boolean serverRunning;//allows server to stop
 	
 	public Server(Integer id, String site) {
 		this.id = id;
 		this.site = site;
 		file = new File("file"+id);
+		this.serverRunning = false;
 		try {
 			file.createNewFile();
 			outputFile = new DataOutputStream(new FileOutputStream(file));
-			sSocket = new ServerSocket(port);// à revoir 
-			dSocket = new DatagramSocket(port);//àrevoir
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -47,22 +47,43 @@ public class Server {
 		return port;
 	}
 	
+	public void stop() {
+		this.serverRunning = false;
+	}
+	
 	public void receive() {
-		System.out.println("-Je suis id="+id+" du port d'ecoute:"+port);
-		System.out.println("je veux recevoir les messages");
-		while(true) {
-			Socket c;
-			try {
-				c = sSocket.accept();
-				DataInputStream is = new DataInputStream(c.getInputStream());
-				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-				String fileLine = is.readUTF()+ " " + timestamp;
-				System.out.println(fileLine);
-				outputFile.writeUTF(fileLine);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}	
-		}
+		this.serverRunning = true;
+		System.out.println(" >> ID="+id+" PORT:"+port);
+		System.out.println("i want to receive a massage");
+		//in a thread because of infinite loop
+		Thread thread = new Thread(new Runnable(){
+			public void run() {
+				while(serverRunning) {
+					byte msg[] = new byte[50];
+					DatagramPacket packet = new DatagramPacket(msg, 50);
+					try {
+						Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+						dSocket.receive(packet);
+						String fileLine = new String(msg);
+						fileLine += " " + timestamp;
+						outputFile.writeUTF(fileLine);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		thread.start();
 	}	
+	
+	/*
+	SI PB AVEC LES STRING
+	byte[]tab -> BigInteger en utilisant new BigInteger(tab)
+	la valeur envoyé comme un string
+
+	coté serveur
+
+	byte [] tab =new BigInteger (str_clé_recu).toByteArray();
+	*/
 	
 }
