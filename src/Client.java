@@ -50,9 +50,8 @@ public class Client implements Runnable {
 		long timeLimit = System.currentTimeMillis()+TimeUnit.SECONDS.toMillis(4);
 		while(System.currentTimeMillis()< timeLimit) {
 			try {
-				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 				for(Map.Entry mapentry : sites.entrySet()) {
-					String msg = mapentry.getKey().toString() + " " +timestamp.toString() + " " + numSeq;
+					String msg = mapentry.getKey().toString() + " " + System.currentTimeMillis() + " " + numSeq;
 					byte[] line = msg.getBytes();
 					System.out.println(msg);
 					InetAddress localhost;

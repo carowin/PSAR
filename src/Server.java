@@ -29,7 +29,7 @@ public class Server {
 		this.id = id;
 		this.site = site;
 		file = new File("file"+id+".txt");
-		this.serverRunning = false;
+		this.serverRunning = true;
 		try {
 			file.createNewFile();
 			outputFile = new DataOutputStream(new FileOutputStream(file));
@@ -60,14 +60,20 @@ public class Server {
 				System.out.println("i want to receive a message");
 				while(serverRunning) {
 					byte msg[] = new byte[50];
+					System.out.println("1");
 					DatagramPacket packet = new DatagramPacket(msg, 50);
 					try {
-						Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+						System.out.println("2");
 						dSocket.receive(packet);
+						
+						//a partir de là ca ne passe plus
+						
+						System.out.println("3");
 						String fileLine = new String(msg);
-						fileLine += " " + timestamp;
-						System.out.println(fileLine);
+						fileLine += " " + System.currentTimeMillis();
+						System.out.println( "FILELINE >>" +fileLine);
 						outputFile.writeUTF(fileLine);
+						System.out.println("4");
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
