@@ -23,6 +23,8 @@ do
   send -- "$2\r"
 
   sleep 5
+  
+  #--------------------------EXECUTE PROGRAM---------------------------
   send "cd PSAR_exec\r"
   send "javac *.java\r"
   send "java Trace\r"
