@@ -11,7 +11,7 @@ import java.sql.Timestamp;
  * Each site is both a client and a server.
  * This class allows every sites to collect data from every other sites.
  * The data will be store in a file, which name will be "file+site id".
- * Once the data collected, the server must add to the message the actual 
+ * Once the data collected, the server must add to the message the actual
  * timestamp and the number of hop that it took to get to this site.
  * In this case, we assume that every Server port number is 35207.
  */
@@ -24,11 +24,11 @@ public class Server {
 	private ServerSocket sSocket;
 	private DatagramSocket dSocket;
 	private Boolean serverRunning;//allows server to stop
-	
+
 	public Server(Integer id, String site) {
 		this.id = id;
 		this.site = site;
-		file = new File("file"+id+".txt");
+		file = new File("PSAR_exec/file"+id+".txt");
 		this.serverRunning = true;
 		try {
 			file.createNewFile();
@@ -38,19 +38,19 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public int getId() {
 		return id;
 	}
-	
+
 	public int getPort() {
 		return port;
 	}
-	
+
 	public void stop() {
 		this.serverRunning = false;
 	}
-	
+
 	public void receive() {
 		//in a thread because of infinite loop
 		serverRunning = true;
@@ -65,9 +65,9 @@ public class Server {
 					try {
 						System.out.println("2");
 						dSocket.receive(packet);
-						
+
 						//a partir de là ca ne passe plus
-						
+
 						System.out.println("3");
 						String fileLine = new String(msg);
 						fileLine += " " + System.currentTimeMillis();
@@ -81,8 +81,8 @@ public class Server {
 			}
 		});
 		thread.start();
-	}	
-	
+	}
+
 	/*
 	SI PB AVEC LES STRING
 	byte[]tab -> BigInteger en utilisant new BigInteger(tab)
@@ -92,5 +92,5 @@ public class Server {
 
 	byte [] tab =new BigInteger (str_clé_recu).toByteArray();
 	*/
-	
+
 }
