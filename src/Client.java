@@ -12,12 +12,13 @@ import java.util.concurrent.TimeUnit;
 
 public class Client implements Runnable {
 	
-	private Integer id;
-	private String site;
-	private int numSeq;
+	private Integer id; /* id of the site */
+	private String site;/* site name */
+	private int numSeq;/* sequential number(+1 each time a msg is sent) */
 	private DatagramSocket dSocket;
+	private int serverPort = 35207;/* port in which the site is listening */
 	
-	HashMap<Integer, String> sites;//sites to send heartbeat
+	HashMap<Integer, String> sites;/* sites from configFile to send heartbeat */
 	
 	public Client(Integer id, String site) {
 		this.id = id;
@@ -30,9 +31,9 @@ public class Client implements Runnable {
 			String node;
 			while ((node=in.readLine()) != null){
 				String[] info = node.split(" ");
-				if(!info[0].equals(id.toString())) {
+				//if(!info[0].equals(id.toString())) {
 					sites.put(Integer.parseInt(info[0]), info[1]);
-				}
+				//}
 			}//map configure	
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -46,7 +47,7 @@ public class Client implements Runnable {
 	}
 	
 	public void run() {
-		System.out.println("----------- START >> 2 MINUTES -----------");
+		System.out.println("----------- "+site+ " START >> 2 MINUTES -----------");
 		long timeLimit = System.currentTimeMillis()+TimeUnit.SECONDS.toMillis(4);
 		while(System.currentTimeMillis()< timeLimit) {
 			try {
@@ -57,7 +58,7 @@ public class Client implements Runnable {
 					InetAddress localhost;
 					try {
 						localhost = InetAddress.getByName(mapentry.getValue().toString());
-						DatagramPacket out = new DatagramPacket(line, 0, line.length, localhost, 8080);
+						DatagramPacket out = new DatagramPacket(line, 0, line.length, localhost, serverPort);
 						dSocket.send(out);
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -69,7 +70,7 @@ public class Client implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("----------- END >> 2 MINUTES -----------");
+		System.out.println("----------- "+site+" END >> 2 MINUTES -----------");
 	}
 
 }

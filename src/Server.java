@@ -15,25 +15,26 @@ import java.sql.Timestamp;
  * timestamp and the number of hop that it took to get to this site.
  * In this case, we assume that every Server port number is 35207.
  */
-public class Server {
-	private Integer id;
-	private String site;//pas besoin peut etre
-	private int port = 35207;
-	private File file;
+public class Server implements Runnable{
+	private Integer id;/* id of the site */
+	private String site;/* site name */
+	private int port = 35207;/* server port */
+	private File file;/* file which contains other site msg */
+	
 	private DataOutputStream outputFile;
-	private ServerSocket sSocket;
 	private DatagramSocket dSocket;
-	private Boolean serverRunning;//allows server to stop
+	private Boolean serverRunning;/* stop the server */
 
 	public Server(Integer id, String site) {
 		this.id = id;
 		this.site = site;
-		file = new File("PSAR_exec/file"+id+".txt");
 		this.serverRunning = true;
 		try {
+			this.file = new File("file"+id+".txt");
 			file.createNewFile();
+			System.out.println("fichier cree");
 			outputFile = new DataOutputStream(new FileOutputStream(file));
-			dSocket = new DatagramSocket();
+			dSocket = new DatagramSocket(port);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -51,36 +52,32 @@ public class Server {
 		this.serverRunning = false;
 	}
 
-	public void receive() {
-		//in a thread because of infinite loop
+	@Override
+	public void run() {
 		serverRunning = true;
-		Thread thread = new Thread(new Runnable(){
-			public void run() {
-				System.out.println(" >> ID="+id+" PORT:"+port);
-				System.out.println("i want to receive a message");
-				while(serverRunning) {
-					byte msg[] = new byte[50];
-					System.out.println("1");
-					DatagramPacket packet = new DatagramPacket(msg, 50);
-					try {
-						System.out.println("2");
-						dSocket.receive(packet);
+		System.out.println(" >> ID="+id+" PORT:"+port);
+		System.out.println("i want to receive a message");
+		while(serverRunning) {
+			byte msg[] = new byte[50];
+			System.out.println("1");
+			DatagramPacket packet = new DatagramPacket(msg, 50);
+			try {
+				System.out.println("2");
+				dSocket.receive(packet);
 
-						//a partir de là ca ne passe plus
+				//a partir de là ca ne passe plus
 
-						System.out.println("3");
-						String fileLine = new String(msg);
-						fileLine += " " + System.currentTimeMillis();
-						System.out.println( "FILELINE >>" +fileLine);
-						outputFile.writeUTF(fileLine);
-						System.out.println("4");
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
+				System.out.println("3");
+				String fileLine = new String(msg);
+				fileLine += " " + System.currentTimeMillis();
+				System.out.println( "FILELINE >>" +fileLine);
+				outputFile.writeUTF(fileLine);
+				System.out.println("4");
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		});
-		thread.start();
+		}
+		
 	}
 
 	/*
@@ -89,7 +86,6 @@ public class Server {
 	la valeur envoyé comme un string
 
 	coté serveur
-
 	byte [] tab =new BigInteger (str_clé_recu).toByteArray();
 	*/
 

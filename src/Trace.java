@@ -23,7 +23,6 @@ public class Trace {
 		BufferedReader in; //file reader
 		ArrayList<Client> clientList; 
 		ArrayList<Server> serverList;
-		Timer timer = new Timer();
 		int nbSite = 0;
 		
 		//-----SITES INFOS-----
