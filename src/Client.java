@@ -31,9 +31,9 @@ public class Client implements Runnable {
 			String node;
 			while ((node=in.readLine()) != null){
 				String[] info = node.split(" ");
-				//if(!info[0].equals(id.toString())) {
+				if(!info[0].equals(id.toString())) {
 					sites.put(Integer.parseInt(info[0]), info[1]);
-				//}
+				}
 			}//map configure	
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -74,3 +74,7 @@ public class Client implements Runnable {
 	}
 
 }
+
+/**
+ * TESTER en local sur different port 
+ * */

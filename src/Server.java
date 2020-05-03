@@ -30,7 +30,7 @@ public class Server implements Runnable{
 		this.site = site;
 		this.serverRunning = true;
 		try {
-			this.file = new File("file"+id+".txt");
+			this.file = new File("logFile"+id+".txt");
 			file.createNewFile();
 			System.out.println("fichier cree");
 			outputFile = new DataOutputStream(new FileOutputStream(file));
@@ -66,7 +66,6 @@ public class Server implements Runnable{
 				dSocket.receive(packet);
 
 				//a partir de là ca ne passe plus
-
 				System.out.println("3");
 				String fileLine = new String(msg);
 				fileLine += " " + System.currentTimeMillis();
@@ -77,7 +76,6 @@ public class Server implements Runnable{
 				e.printStackTrace();
 			}
 		}
-		
 	}
 
 	/*
