@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * Les messages envoyés sont de la forme:
  *	monId+timestampSend+numSeq -> qui sera ensuite complété par le siteServeur
  */
-public class UDPClient {
+public class UDPClient implements Runnable {
 	
     private DatagramSocket udpSocket;
     private BufferedReader in;
@@ -28,7 +29,7 @@ public class UDPClient {
     private String myHostname; /* hostname du site */
     
     
-    private UDPClient() throws IOException {
+    public UDPClient() throws IOException {
         this.udpSocket = new DatagramSocket(this.port);
         this.sites = new HashMap<>();
         this.myHostname = InetAddress.getLocalHost().getHostName();
@@ -58,46 +59,55 @@ public class UDPClient {
     }
     
 
-    public static void main(String[] args) throws NumberFormatException, IOException, InterruptedException { 
-    	UDPClient sender = new UDPClient();
-        System.out.println("-- Running UDP Client --");
-        sender.start();
-    }
-    
-    
-    
-    private void start() throws IOException, InterruptedException {
+	@Override
+	public void run() {
         String msg;
         System.out.println("----------- "+myHostname+ " START >> 2 MINUTES -----------");
         long timeLimit = System.currentTimeMillis()+TimeUnit.SECONDS.toMillis(10);
 
         while(System.currentTimeMillis()< timeLimit) {
-        	
-        	//Parcours du configFile(pour recuperer la liste des sites)
-        	for(Map.Entry entry : sites.entrySet()) {
-        		
-        		msg = id + " " + System.currentTimeMillis() + " " + numSeq;
-        		System.out.println(msg);
-        		
-        		//________________envoie du paquet udp_________________
-        		DatagramPacket p = new DatagramPacket(
-    	                msg.getBytes(), msg.getBytes().length, InetAddress.getByName((String) entry.getValue()), port);
-	            this.udpSocket.send(p); 
-	          //_______________________________________________________
-	            
-        	}
+			try {
+	        	//Parcours du configFile(pour recuperer la liste des sites)
+	        	for(Map.Entry entry : sites.entrySet()) {
+	        		
+	        		msg = id + " " + System.currentTimeMillis() + " " + numSeq;
+	        		System.out.println(msg);
+	        		
+	        		//________________envoie du paquet udp_________________
+	        		DatagramPacket p;
+						p = new DatagramPacket(
+						        msg.getBytes(), msg.getBytes().length, InetAddress.getByName((String) entry.getValue()), port);
+						this.udpSocket.send(p);
+	
+		          //_______________________________________________________
+		            
+	        	}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
         	numSeq++;
-            Thread.sleep(100);
+            try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
         }
         
         //ENVOIE MESSAGE DE TERMINAISON >> Signale aux serveurs la fin de l'envoie
         for(Map.Entry entry : sites.entrySet()) {
-        	String terminaison = "DONE";
-    		DatagramPacket p = new DatagramPacket(
-	                terminaison.getBytes(), terminaison.getBytes().length, InetAddress.getByName((String) entry.getValue()), port);
-            this.udpSocket.send(p); 
+        	 try {
+	        	String terminaison = "DONE";
+	    		DatagramPacket p = new DatagramPacket(
+		                terminaison.getBytes(), terminaison.getBytes().length, InetAddress.getByName((String) entry.getValue()), port);
+	           
+				this.udpSocket.send(p);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
         
         System.out.println("----------- "+myHostname+" END >> 2 MINUTES -----------");
-    }
+		
+	}
 }

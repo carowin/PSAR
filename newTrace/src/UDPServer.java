@@ -10,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 
 /**
@@ -17,7 +18,7 @@ import java.net.SocketException;
  * et de les insérer dans le fichier log du site (nom: logFile+id.txt)
  * On suppose ici que tout les serveurs ont le même port d'écoute
  */
-public class UDPServer {
+public class UDPServer implements Runnable {
 
     private DatagramSocket udpSocket;
 	private DataOutputStream outputFile;
@@ -54,34 +55,34 @@ public class UDPServer {
 	 //_______________________________________________________
     }
     
-    
-    private void listen() throws Exception {
-        System.out.println("-- Running Server at " + InetAddress.getLocalHost() + "--");
-        String msg;
-        
-        while (run) {
-            
-            byte[] buf = new byte[256];
-            DatagramPacket packet = new DatagramPacket(buf, buf.length);
-            udpSocket.receive(packet);//bloqué tant que rien est envoyé
-            
-            //____________RECUPERATION MSG______________
-            msg = new String(packet.getData()).trim();
-            if(msg.equals("DONE")) {//si on recoit un msg de terminaison
-            	run = false;//sortie de boucle
-            }else {
-				msg += " " + System.currentTimeMillis() + "\n";
-				System.out.println("RECU "+msg);
-				//ajout du message recu dans le fichier
-				outputFile.writeUTF(msg);
-            }
-			//___________________________________________
-        }
-    }
-    
-    
-    public static void main(String[] args) throws Exception {
-        UDPServer client = new UDPServer();
-        client.listen();
-    }
+
+	@Override
+	public void run() {
+        try {
+			System.out.println("-- Running Server at " + InetAddress.getLocalHost() + "--");
+	        String msg;
+	        
+	        while (run) {
+	            
+	            byte[] buf = new byte[256];
+	            DatagramPacket packet = new DatagramPacket(buf, buf.length);
+	            udpSocket.receive(packet);//bloqué tant que rien est envoyé
+	            
+	            //____________RECUPERATION MSG______________
+	            msg = new String(packet.getData()).trim();
+	            if(msg.equals("DONE")) {//si on recoit un msg de terminaison
+	            	run = false;//sortie de boucle
+	            }else {
+					msg += " " + System.currentTimeMillis() + "\n";
+					System.out.println("RECU "+msg);
+					//ajout du message recu dans le fichier
+					outputFile.writeUTF(msg);
+	            }
+				//___________________________________________
+	        }
+        }catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
 }
