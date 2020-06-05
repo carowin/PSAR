@@ -33,7 +33,7 @@ public class UDPClient implements Runnable {
         this.udpSocket = new DatagramSocket(this.port);
         this.sites = new HashMap<>();
         this.myHostname = InetAddress.getLocalHost().getHostName();
-        this.port = 7077;
+        this.port = 7070;
         this.numSeq = 0;
         
        
@@ -47,10 +47,10 @@ public class UDPClient implements Runnable {
 			System.out.println(node);
 			if(!(info[1].equals(myHostname))) {
 				sites.put(Integer.parseInt(info[0]), info[1]);
-				System.out.println("VOISIN" +info[1]);
+				System.out.println("VOISIN " +info[1]);
 			}else {
 				this.id = Integer.parseInt(info[0]);
-				System.out.println("ID"+ info[0]);
+				System.out.println("ID "+ info[0]);
 			}
 		}
 		
@@ -71,7 +71,7 @@ public class UDPClient implements Runnable {
 	        	for(Map.Entry entry : sites.entrySet()) {
 	        		
 	        		msg = id + " " + System.currentTimeMillis() + " " + numSeq;
-	        		System.out.println(msg);
+	        		//System.out.println(msg);
 	        		
 	        		//________________envoie du paquet udp_________________
 	        		DatagramPacket p;
@@ -100,7 +100,7 @@ public class UDPClient implements Runnable {
 	        	String terminaison = "DONE";
 	    		DatagramPacket p = new DatagramPacket(
 		                terminaison.getBytes(), terminaison.getBytes().length, InetAddress.getByName((String) entry.getValue()), port);
-	           
+	           System.out.println("I'M DONE ! "+ id);
 				this.udpSocket.send(p);
 			} catch (IOException e) {
 				e.printStackTrace();
