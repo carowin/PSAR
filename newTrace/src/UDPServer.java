@@ -89,7 +89,7 @@ public class UDPServer implements Runnable {
 		            threadWorker.add(t);
 		            t.start();
 	            }
-	            
+	      
 	            if(nbClientDone == nbClient) {
 	            	run = false; //sortie de boucle
 	            }
@@ -108,6 +108,7 @@ public class UDPServer implements Runnable {
        System.out.println("-- Server is done");
     }
         
+	
 	public class ServerWorker implements Runnable {
 		String msg;
 		public ServerWorker(String msg) {

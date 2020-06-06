@@ -11,7 +11,7 @@ send -- "\r"
 expect "*?assword:"
 send -- "$2\r"
 
-sleep 10
+sleep 3
 
 #--------------------------EXECUTE PROGRAM---------------------------
 send "java -cp UDPSocketTest2.jar MainTrace 7070"
