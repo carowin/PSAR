@@ -123,7 +123,7 @@ public class UDPServer implements Runnable {
 		
 		@Override
 		public void run() {
-			msg += " " + System.currentTimeMillis() + "\n";
+			msg += " " + System.nanoTime() + "\n";
 			System.out.println("RECU "+msg);
 			try {
 				ajoutDansFichier(msg);

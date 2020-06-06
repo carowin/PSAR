@@ -70,7 +70,7 @@ public class UDPClient implements Runnable {
 	        	//Parcours du configFile(pour recuperer la liste des sites)
 	        	for(Map.Entry entry : sites.entrySet()) {
 	        		
-	        		msg = id + " " + System.currentTimeMillis() + " " + numSeq;
+	        		msg = id + " " + System.nanoTime() + " " + numSeq;
 	        		//System.out.println(msg);
 	        		
 	        		//________________envoie du paquet udp_________________
