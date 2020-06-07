@@ -11,6 +11,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.time.Clock;
 import java.util.ArrayList;
 /**
  * Pour accepter plusieurs données de différents site à la fois on va créer
@@ -40,11 +41,42 @@ public class UDPServer implements Runnable {
     private int nbClientDone = 0;/* nombre de client ayant fini l'envoi */
     private int nbClient;/* nombre de client total */
     private ArrayList<Thread> threadWorker = new ArrayList<>();
+    private long globalClock;/* horloge globale */
+    private long timeStart;
  
     public UDPServer() throws SocketException, IOException {
         this.port = 7070;
         this.udpSocket = new DatagramSocket(this.port);
         this.myHostname = InetAddress.getLocalHost().getHostName();
+        
+        
+      //________________RÉCUPÉRATION DE L'ID________________
+        
+        this.in = new BufferedReader(new InputStreamReader(
+        	    this.getClass().getResourceAsStream("configFile.txt")));
+        String node;
+		while ((node = in.readLine()) != null){
+			String[] info = node.split(" ");
+			if((info[1].equals(myHostname))) {
+				this.id = Integer.parseInt(info[0]);
+			}else {
+				nbClient ++;
+				System.out.println(("NOMBRE DE CLIENT  >> " + nbClient));
+			}
+		}
+		
+		this.file = new File("logFile"+ id+ ".txt");
+		this.outputFile = new DataOutputStream(new FileOutputStream(file));
+		
+	 //_______________________________________________________
+    }
+    
+    public UDPServer(long globalClock, long timeStart) throws SocketException, IOException {
+        this.port = 7070;
+        this.udpSocket = new DatagramSocket(this.port);
+        this.myHostname = InetAddress.getLocalHost().getHostName();
+        this.globalClock = globalClock;
+        this.timeStart = timeStart;
         
         
       //________________RÉCUPÉRATION DE L'ID________________
@@ -85,7 +117,7 @@ public class UDPServer implements Runnable {
 	            if(msg.equals("DONE")) {//si on recoit un msg de terminaison
 	            	nbClientDone ++;
 	            }else {
-		            Thread t = new Thread(new ServerWorker(msg));
+		            Thread t = new Thread(new ServerWorker(msg, System.currentTimeMillis()));
 		            threadWorker.add(t);
 		            t.start();
 	            }
@@ -108,11 +140,16 @@ public class UDPServer implements Runnable {
        System.out.println("-- Server is done");
     }
         
-	
+	/**
+	 * Thread worker appelé par le serveur qui va récupérer le message recu par le serveur
+	 * et qui va placer ce message dans le fichier log du site.
+	 */
 	public class ServerWorker implements Runnable {
 		String msg;
-		public ServerWorker(String msg) {
+		long time;
+		public ServerWorker(String msg, long time) {
 			this.msg = msg;
+			this.time = time;
 		}
 		
 		public void ajoutDansFichier(String msg) throws IOException {
@@ -123,7 +160,8 @@ public class UDPServer implements Runnable {
 		
 		@Override
 		public void run() {
-			msg += " " + System.nanoTime() + "\n";
+			long timereceiver = globalClock +(time-timeStart);
+			msg += " " + timereceiver + "\n";
 			System.out.println("RECU "+msg);
 			try {
 				ajoutDansFichier(msg);

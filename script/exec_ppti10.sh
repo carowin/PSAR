@@ -14,7 +14,7 @@ send -- "$2\r"
 sleep 3
 
 #--------------------------EXECUTE PROGRAM---------------------------
-send "java -cp UDPSocketTest2.jar MainTrace 7070"
+send "java -cp UDPSocketTest2.jar MainTrace $3"
 
 sleep 10
 send "exit\r"
