@@ -31,7 +31,7 @@ public class GraphPanne extends JFrame {
     // Create chart
     JFreeChart chart = ChartFactory.createLineChart(
         "Panne des sites", // Chart title
-        "Numéro de séquence", // X-Axis Label
+        "Temps(ms)", // X-Axis Label
         "Nombre de messages", // Y-Axis Label
         dataset
         );
@@ -56,7 +56,6 @@ public class GraphPanne extends JFrame {
 			  if(file.getAbsoluteFile().exists()) {
 				  BufferedReader bur = new BufferedReader(new InputStreamReader(
 					  this.getClass().getResourceAsStream("logFile"+info[0]+".txt")));
-				  System.out.println("MAP put : "+ Integer.valueOf(info[0])+"  "+ "logFile"+info[0]+".txt");
 				  fileReader.put(Integer.valueOf(info[0]), bur);
 				  sites.add(Integer.valueOf(info[0]));
 			  }
@@ -75,23 +74,21 @@ public class GraphPanne extends JFrame {
 	  for(int i=0; i<sites.size(); i++) {
 		  BufferedReader siteReader = null;
 		  if(i == sites.size()-1) {
-			  System.out.println("1 "+ sites.get(0) + "indice du tableau: "+i);
 			  siteReader = fileReader.get(sites.get(0)); 
 		  }else {
-			  System.out.println("2 "+i+" "+sites.get(i+1) + "indice du tableau: "+i);
 			  siteReader = fileReader.get(sites.get(i+1));
 		  }
 		  try {
 			  
 			  SiteData data1 = new SiteData(sites.get(i));
 			  Map<Integer, Integer> result = data1.getListMessage(siteReader);
-		      for(Entry e : result.entrySet()) {
-		    		dataset.addValue((Number) e.getValue(), "site "+sites.get(i), (Comparable) e.getKey());
+		      for(Entry<Integer, Integer> e : result.entrySet()) {
+		    	System.out.println(e.getValue() + " : "+ e.getKey() + "sur le site "+sites.get(i));
+		    	dataset.addValue((Number) e.getKey(), "site "+sites.get(i), (Comparable) e.getValue());
 		      }
 		  } catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
-		  }
-		  
+		  } 
 	  }
 	return dataset;
   }

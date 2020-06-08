@@ -98,7 +98,7 @@ public class UDPClient implements Runnable {
 	public void run() {
         String msg;
         System.out.println("----------- "+myHostname+ " START >> 2 MINUTES -----------");
-        long timeLimit = System.currentTimeMillis()+TimeUnit.MINUTES.toMillis(2);
+        long timeLimit = System.currentTimeMillis()+TimeUnit.MINUTES.toMillis(10);
 
         while(System.currentTimeMillis()< timeLimit) {
 			try {

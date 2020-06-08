@@ -160,7 +160,7 @@ public class UDPServer implements Runnable {
 		
 		@Override
 		public void run() {
-			long timereceiver = globalClock +(time-timeStart);
+			long timereceiver = globalClock +(time-timeStart) + 20000;
 			msg += " " + timereceiver + "\n";
 			System.out.println("RECU "+msg);
 			try {

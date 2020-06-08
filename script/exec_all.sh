@@ -1,6 +1,5 @@
 #!/bin/bash
-
-./exec_ppti10.sh $1 $2 &
-./exec_ppti11.sh $1 $2 &
-./exec_ppti13.sh $1 $2 &
-./exec_ppti14.sh $1 $2 &
+time=$(date +"%s")
+./exec_mac.sh $1 $2 ppti-14-302-10 $time &
+./exec_mac.sh $1 $2 ppti-14-302-13 $time &
+./exec_mac.sh $1 $2 ppti-14-302-14 $time &
