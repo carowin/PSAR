@@ -1,3 +1,4 @@
 0 planetlab2.u-strasbg.fr Strasbourg
 1 ple44.planet-lab.eu Sorbonne
 2 merkur.planetlab.haw-hamburg.de Hamburg
+3 planet1.elte.hu Eotvos

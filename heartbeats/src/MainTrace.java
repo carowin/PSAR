@@ -6,7 +6,7 @@ public class MainTrace {
 		long globalClock = Long.parseLong(args[0]);
 		long timeStart = System.currentTimeMillis();
 		System.out.println("Horloge globale" + globalClock);
-		Thread server = new Thread(new UDPServer(globalClock, timeStart));
+		Thread server = new Thread(new UDPServer(globalClock+60000, timeStart));
 		server.start();
 		try {
 			Thread.sleep(500);

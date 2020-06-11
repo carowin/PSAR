@@ -33,41 +33,13 @@ public class UDPClient implements Runnable {
     private String myHostname; /* hostname du site */
     private long globalClock; /* horloge globale */
     private long timeStart; /* temps au moment où le client a été lancé*/
-
-    public UDPClient() throws IOException {
-        this.udpSocket = new DatagramSocket(this.port);
-        this.sites = new HashMap<>();
-        this.myHostname = InetAddress.getLocalHost().getHostName();
-        this.port = 7070;
-        this.numSeq = 0;
-        
-       
-        //_________________INITIALISATION MAP__________________
-        
-        this.in = new BufferedReader(new InputStreamReader(
-        	    this.getClass().getResourceAsStream("configFile.txt")));
-        String node;
-		while ((node = in.readLine()) != null){
-			String[] info = node.split(" ");
-			System.out.println(node);
-			if(!(info[1].equals(myHostname))) {
-				sites.put(Integer.parseInt(info[0]), info[1]);
-				System.out.println("VOISIN " +info[1]);
-			}else {
-				this.id = Integer.parseInt(info[0]);
-				System.out.println("ID "+ info[0]);
-			}
-		}
-		
-	  //_______________________________________________________
-    
-    }
+      
     
     public UDPClient(long globalClock, long timeStart) throws IOException {
         this.udpSocket = new DatagramSocket(this.port);
         this.sites = new HashMap<>();
         this.myHostname = InetAddress.getLocalHost().getHostName();
-        this.port = 7070;
+        this.port = 7076;
         this.numSeq = 0;
         this.globalClock = globalClock;
         this.timeStart = timeStart;
@@ -98,7 +70,7 @@ public class UDPClient implements Runnable {
 	public void run() {
         String msg;
         System.out.println("----------- "+myHostname+ " START >> 2 MINUTES -----------");
-        long timeLimit = System.currentTimeMillis()+TimeUnit.MINUTES.toMillis(10);
+        long timeLimit = System.currentTimeMillis()+TimeUnit.HOURS.toMillis(1);
 
         while(System.currentTimeMillis()< timeLimit) {
 			try {

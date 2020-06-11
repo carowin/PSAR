@@ -12,60 +12,40 @@ import org.jfree.data.category.DefaultCategoryDataset;
  */
 public class SiteData {
 	private int id; /* id du site que l'on souhaite avoir des infos */
-	
+	private Map<Integer, Integer> evolMsg;/* <temps, nbMsg> */
+	private Map<Integer, Integer> tempsEnvoi;/* <numSeq, tempsEnvoi> */
+	private Map<Integer, Integer> nbSiteRecv;/* <numSeq, nbSiteRecu */
 	public SiteData(int id) {
 		this.id = id;
+		this.evolMsg = new HashMap<>();
+		this.tempsEnvoi = new HashMap<>();
+		this.nbSiteRecv = new HashMap<>();
 	}
-	
+	//POUR TRIER LA MAP : TreeMap<String, Employee> sorted = new TreeMap<>(map);
 	
 	/**
-	 * Récupère tout les messages de id présent dans le fichier qu'on peut lire dans in
+	 * Compte au fur et à mesure le nombre de msg recu au total par rapport au temps, remplit la map nbMsg
 	 */
-/*	public Map<Integer, Integer> getListMessage(BufferedReader in) throws NumberFormatException, IOException{
-		String data;
-		Map<Integer, Integer> result = new HashMap<>();
-		int nbSeq = -1, nbMsg = 0;
-		while((data = in.readLine()) != null){
-			String[] info = data.split(" ");
-			if(Integer.valueOf(info[0]) == id) {
-				if(Integer.valueOf(info[2])==nbSeq+1) {
-					nbMsg++;
-					result.put(Integer.valueOf(info[2]),nbMsg);
-					nbSeq ++;
-				}else {
-					while(nbSeq < Integer.valueOf(info[2])) {
-						result.put(nbSeq,nbMsg);
-						nbSeq ++;
-					}nbMsg++;
-					result.put(Integer.valueOf(info[2]),nbMsg);
-					nbSeq++;
-				}
-			}
-		}
-		return result;
-	}*/
 	public Map<Integer, Integer> getListMessage(BufferedReader in) throws NumberFormatException, IOException{
 		String data;
-		Map<Integer, Integer> result = new HashMap<>();
 		int nbMsg = 0;
 		while((data = in.readLine()) != null){
 			String[] info = data.split(" ");
 			if(Integer.valueOf(info[0]) == id) {
 				nbMsg++;
 				System.out.println(Integer.valueOf(info[3])+" "+ nbMsg);
-				result.put(nbMsg, Integer.valueOf(info[3]));
+				evolMsg.put(nbMsg, Integer.valueOf(info[3]));
 			}
 		}
-		return result;
+		return evolMsg;
 	}
 	
 
 	
 	/**
-	 * Recupère tout les messages qu'il a envoyé dans les differents sites
+	 * Recupère tout les messages qu'il a envoyé dans les differents sites, remplit la map 
 	 */
 	public Map<Integer, Integer> getEveryMessagesSend(List<BufferedReader> in) throws IOException {
-		Map<Integer, Integer> messageSent = new HashMap<>();
 		int i =1;
 		int nbseq=0;;
 		for(BufferedReader br : in) {
@@ -75,66 +55,73 @@ public class SiteData {
 				String[] info = data.split(" ");
 				if(Integer.valueOf(info[0]) == id) {
 					int msgSeqnumber = Integer.valueOf(info[2]);
-					if(i==1 && !messageSent.containsKey(nbseq) ) {
-						messageSent.put(nbseq, 0);
+					if(i==1 && !nbSiteRecv.containsKey(nbseq) ) {
+						nbSiteRecv.put(nbseq, 0);
 						nbseq++;
 					}
-					if(messageSent.containsKey(msgSeqnumber)){
-						messageSent.put(msgSeqnumber, messageSent.get(msgSeqnumber)+1);
+					if(nbSiteRecv.containsKey(msgSeqnumber)){
+						nbSiteRecv.put(msgSeqnumber, nbSiteRecv.get(msgSeqnumber)+1);
 					}else {
-						messageSent.put(msgSeqnumber, 1);
+						nbSiteRecv.put(msgSeqnumber, 1);
 					}
 				}
 			}i++;
 		}
-		return messageSent;
+		return nbSiteRecv;
 	}
+	
+	/* associe à chaque message son temps d'envoi */
+	public Map<Integer,Integer> tempsEnvoiMessage(BufferedReader in) throws NumberFormatException, IOException {
+		String data;
+		int nbMessage = 0;
+		while((data = in.readLine()) != null) {
+			String[] info = data.split(" ");
+			if(Integer.valueOf(info[0])==id) {
+				int diff = Integer.valueOf(info[3])-Integer.valueOf(info[1]);
+				tempsEnvoi.put(Integer.valueOf(info[2]), diff);
+			}
+		}
+		return tempsEnvoi;
+	}
+	
 
 	
 	/**
 	 * Calcul de la valeur de l'écart type des msg du site id dans le fichier se trouvant dans
 	 * le bufferedReader
 	*/
-	public float ecartType(BufferedReader in) throws IOException {
-		String data;
-		int nbMsg = this.nbMsgInFile(in);
-		long moy = this.moyenne(in);
-		long somme = 0;
-		while((data = in.readLine()) != null) {
-			String[] info = data.split(" ");
-			if(Integer.valueOf(info[0])==id) {
-				long diff = Long.getLong(info[3])-Long.getLong(info[3]);
-				somme+= Math.pow(diff-moy, 2);
+	public int ecartType(BufferedReader in,Map<Integer,Integer> map) throws IOException {
+		Map<Integer, Integer> coeff = new HashMap<>(); //<tempsEnvoi, coeff>
+		for(Entry<Integer,Integer> c : map.entrySet()) {
+			if(coeff.containsKey(c.getValue())) {
+				coeff.put(c.getValue(), coeff.get(c.getValue())+1);
+			}else {
+				coeff.put(c.getValue(),1);
 			}
 		}
-		return somme/nbMsg;
-	}
-	
-	public Map<Integer,Long> perteMessage(BufferedReader in) throws NumberFormatException, IOException {
-		Map<Integer,Long> timeMsg = new HashMap<>(); //<numSeq,temps envoi>
-		String data;
-		int nbMessage = 0;
-		while((data = in.readLine()) != null) {
-			String[] info = data.split(" ");
-			if(Integer.valueOf(info[0])==id) {
-				long diff = Long.getLong(info[3])-Long.getLong(info[3]);
-				timeMsg.put(Integer.valueOf(info[2]), diff);
-			}
+		float moy = this.moyenne(in, map);
+		float somme = 0;
+		for(Entry<Integer, Integer> e: coeff.entrySet()) {
+			somme+= (Math.pow(e.getKey()-moy, 2)*e.getValue());
 		}
-		return timeMsg;
+		return (int) (somme/map.size()+1);
 	}
 	
-	public void afficheMesPertes(BufferedReader in, float rangeMin, float rangeMax) throws NumberFormatException, IOException {
-		Map<Integer,Long> timeMsg = this.perteMessage(in);
-		float ecart_type = this.ecartType(in);
-		for(Entry<Integer,Long> e: timeMsg.entrySet()) {
+	/* affiche les messages en retard */
+	public void afficheMesPertes(BufferedReader in, float rangeMin, float rangeMax,Map<Integer,Integer> map) throws NumberFormatException, IOException {
+		Map<Integer,Integer> timeMsg = this.tempsEnvoiMessage(in);
+		float ecart_type = this.ecartType(in, map);
+		for(Entry<Integer,Integer> e: timeMsg.entrySet()) {
+			if(e.getValue()> rangeMax) {
+				System.out.println("LATENCE MESSAGE: "+ e.getKey()+" "+e.getValue());
+			}
 		}
 	}
 	
 	/**
 	 * Nombre de message du site id dans le fichier in
 	 */
-	public int nbMsgInFile(BufferedReader in) throws IOException {
+	public int nbMsgInFile(BufferedReader in, Map<Integer,Integer> map) throws IOException {
 		String data;
 		int nbMessage = 0;
 		while((data = in.readLine()) != null) {
@@ -147,16 +134,13 @@ public class SiteData {
 		
 	}
 	
-	public long moyenne(BufferedReader in) throws IOException {
-		long moy = 0;
-		int nbMsg = this.nbMsgInFile(in);
-		String data;
-		while((data = in.readLine()) != null) {
-			String[] info = data.split(" ");
-			moy+= (Long.getLong(info[3])-Long.getLong(info[3]));
-		}	
-		System.out.println("Moyenne du temps d'envoie "+ moy/nbMsg);
-		return moy/nbMsg;
+	public float moyenne(BufferedReader in,Map<Integer,Integer> map) throws IOException {
+		int moy = 0;
+		
+		for(Entry<Integer,Integer> e: tempsEnvoi.entrySet()) {
+			moy+= e.getValue();
+		}
+		return moy/map.size();
 	}
 	
 	

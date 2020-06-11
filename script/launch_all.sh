@@ -3,9 +3,10 @@
 #!/bin/bash
 
 time=$(date +"%s")
-while read line
-do
-  url=$(echo $line | cut -f 2 -d ' ')
-  ./launch.sh $url $time &
-done < configFile.txt
-wait
+
+./launch.sh merkur.planetlab.haw-hamburg.de $time &
+./launch.sh ple44.planet-lab.eu $time &
+./launch.sh planetlab2.u-strasbg.fr $time &
+./launch.sh planet1.elte.hu $time &
+
+sleep 30

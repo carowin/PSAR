@@ -43,36 +43,10 @@ public class UDPServer implements Runnable {
     private ArrayList<Thread> threadWorker = new ArrayList<>();
     private long globalClock;/* horloge globale */
     private long timeStart;
- 
-    public UDPServer() throws SocketException, IOException {
-        this.port = 7070;
-        this.udpSocket = new DatagramSocket(this.port);
-        this.myHostname = InetAddress.getLocalHost().getHostName();
-        
-        
-      //________________RÉCUPÉRATION DE L'ID________________
-        
-        this.in = new BufferedReader(new InputStreamReader(
-        	    this.getClass().getResourceAsStream("configFile.txt")));
-        String node;
-		while ((node = in.readLine()) != null){
-			String[] info = node.split(" ");
-			if((info[1].equals(myHostname))) {
-				this.id = Integer.parseInt(info[0]);
-			}else {
-				nbClient ++;
-				System.out.println(("NOMBRE DE CLIENT  >> " + nbClient));
-			}
-		}
-		
-		this.file = new File("logFile"+ id+ ".txt");
-		this.outputFile = new DataOutputStream(new FileOutputStream(file));
-		
-	 //_______________________________________________________
-    }
-    
+    private Object mutex = new Object();
+     
     public UDPServer(long globalClock, long timeStart) throws SocketException, IOException {
-        this.port = 7070;
+        this.port = 7076;
         this.udpSocket = new DatagramSocket(this.port);
         this.myHostname = InetAddress.getLocalHost().getHostName();
         this.globalClock = globalClock;
@@ -153,16 +127,16 @@ public class UDPServer implements Runnable {
 		}
 		
 		public void ajoutDansFichier(String msg) throws IOException {
-			synchronized (this) {
+			synchronized (mutex) {
+				long timereceiver = globalClock +(time-timeStart);
+				msg += " " + timereceiver + "\n";
+				System.out.println("RECU "+msg);
 				outputFile.writeBytes(msg);
 			}
 		}
 		
 		@Override
 		public void run() {
-			long timereceiver = globalClock +(time-timeStart) + 20000;
-			msg += " " + timereceiver + "\n";
-			System.out.println("RECU "+msg);
 			try {
 				ajoutDansFichier(msg);
 			} catch (IOException e) {
